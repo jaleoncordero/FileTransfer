@@ -1,2 +1,4 @@
 github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf h1:FtEj8sfIcaaBfAKrE1Cwb61YDtYq9JxChK1c7AKce7s=
 github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf/go.mod h1:yrqSXGoD/4EKfF26AOGzscPOgTTJcyAwM2rpixWT+t4=
+github.com/jaleoncordero/worker v0.0.0-20250101075218-456999880476 h1:FbAi8BR0Hv8To2hqO2ZWbGUA4U2lvqvdoUei82OX5IY=
+github.com/jaleoncordero/worker v0.0.0-20250101075218-456999880476/go.mod h1:eRKRaq74Tv/sSHMLwqP/UYcHNsydJtnfk8lu6gyvNhw=

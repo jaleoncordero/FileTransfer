@@ -3,56 +3,77 @@ package internal
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"regexp"
 
-	"github.com/inhies/go-bytesize"
+	"github.com/jaleoncordero/worker"
 )
 
 var (
-	srcDir, dstDir string
+	rgx    *regexp.Regexp
+	dstDir string
 )
 
 func Run() {
-	Init()
-}
-
-func Init() {
 	fmt.Println()
 
-	if err := validateArguments(); err != nil {
+	err := validateArguments()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// set destination directory global
+	dstDir, err = filepath.Abs(filepath.Clean(os.Args[2]))
+	if err != nil {
+		panic(err.Error())
+	}
+
+	err = os.MkdirAll(dstDir, 0777)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	rgx, err = regexp.Compile(imgRegex)
+	if err != nil {
+		panic("failed to compile image regex")
+	}
+
+	wp := worker.NewPool(workerPoolSize)
+	wp.Start()
+
+	err = iterateDirectories(os.Args[1], &wp)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	err = wp.Close()
+	if err != nil {
 		panic(err.Error())
 	}
 }
 
-func validateArguments() error {
-	if len(os.Args) != 3 {
-		return fmt.Errorf("missing 1 or more arguments")
-	}
+func iterateDirectories(currentDir string, wp *worker.Pool) error {
 
-	// source directory is first argument
-	if err := validateDirectoryExists("source", os.Args[1]); err != nil {
-		return err
-	} else {
-		srcDir = os.Args[1]
-	}
-
-	// destination directory is second argument
-	if err := validateDirectoryExists("source", os.Args[2]); err != nil {
-		return err
-	} else {
-		dstDir = os.Args[2]
-	}
-
-	return nil
-}
-
-func validateDirectoryExists(dirType, d string) error {
-	fileInfo, err := os.Stat(d)
+	files, err := os.ReadDir(currentDir)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("%s directory information\n----------------------------\nPath: %s\nSize: %v\n\n",
-		dirType, d, bytesize.New(float64(fileInfo.Size())))
+	// add file copy job to worker pool
+	wp.AddJob(
+		&CopyFileJob{
+			srcDir: currentDir,
+		},
+	)
+
+	// iterate through items in current directory
+	for _, file := range files {
+
+		// if item is a directory, we want to iterate into it
+		if file.IsDir() {
+			iterateDirectories(filepath.Join(currentDir, file.Name()), wp)
+		}
+	}
 
 	return nil
 }
