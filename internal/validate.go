@@ -4,36 +4,46 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/inhies/go-bytesize"
 )
 
-func validateArguments() error {
+func validateArguments() (err error) {
 	if len(os.Args) != 3 {
 		return fmt.Errorf("missing 1 or more arguments")
 	}
 
-	// source directory is first argument
-	if err := validateDirectoryExists("source", os.Args[1]); err != nil {
-		return err
+	// normalize source directory
+	srcDir, err = filepath.Abs(filepath.Clean(os.Args[1]))
+	if err != nil {
+		return
+	}
+
+	if err = validateDirectoryExists(srcDir); err != nil {
+		return
+	}
+
+	// normalize destination directory
+	dstDir, err = filepath.Abs(filepath.Clean(os.Args[2]))
+	if err != nil {
+		return
+	}
+
+	// attempt to create destination directory if it doesn't exist
+	if err = validateDirectoryExists(dstDir); os.IsNotExist(err) {
+		if err = os.MkdirAll(dstDir, 0777); err != nil {
+			return
+		}
+
+		return nil
 	}
 
 	return nil
 }
 
-func validateDirectoryExists(dirType, d string) error {
-	path, err := filepath.Abs(filepath.Clean(d))
+func validateDirectoryExists(d string) error {
+	_, err := os.Stat(d)
 	if err != nil {
 		return err
 	}
-
-	fileInfo, err := os.Stat(path)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("%s directory information\n----------------------------\nPath: %s\nSize: %v\n\n",
-		dirType, d, bytesize.New(float64(fileInfo.Size())))
 
 	return nil
 }

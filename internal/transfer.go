@@ -7,53 +7,50 @@ import (
 	"regexp"
 
 	"github.com/jaleoncordero/worker"
-)
-
-var (
-	rgx    *regexp.Regexp
-	dstDir string
+	"github.com/schollz/progressbar/v3"
 )
 
 func Run() {
 	fmt.Println()
 
+	// validate command input
 	err := validateArguments()
 	if err != nil {
 		panic(err.Error())
 	}
 
-	// set destination directory global
-	dstDir, err = filepath.Abs(filepath.Clean(os.Args[2]))
+	// compile regex that determines what media files to copy
+	rgx, err = regexp.Compile(getRegex())
 	if err != nil {
-		panic(err.Error())
+		panic("failed to compile media regex")
 	}
 
-	err = os.MkdirAll(dstDir, 0777)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	rgx, err = regexp.Compile(imgRegex)
-	if err != nil {
-		panic("failed to compile image regex")
-	}
-
+	// start worker pool
 	wp := worker.NewPool(workerPoolSize)
 	wp.Start()
 
-	err = iterateDirectories(os.Args[1], &wp)
+	// progress bar :)
+	bar = progressbar.DefaultBytes(
+		-1,
+		"copying files",
+	)
+
+	// begin work
+	err = iterateDirectories(srcDir, &wp)
 	if err != nil {
 		panic(err.Error())
 	}
 
+	// wrap up work
 	err = wp.Close()
 	if err != nil {
 		panic(err.Error())
 	}
+
+	fmt.Printf("\n\nSuccessfully copied %d file(s) to %s\n", totalFiles, dstDir)
 }
 
 func iterateDirectories(currentDir string, wp *worker.Pool) error {
-
 	files, err := os.ReadDir(currentDir)
 	if err != nil {
 		return err
@@ -71,7 +68,10 @@ func iterateDirectories(currentDir string, wp *worker.Pool) error {
 
 		// if item is a directory, we want to iterate into it
 		if file.IsDir() {
-			iterateDirectories(filepath.Join(currentDir, file.Name()), wp)
+			err := iterateDirectories(filepath.Join(currentDir, file.Name()), wp)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

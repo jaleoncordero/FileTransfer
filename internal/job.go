@@ -1,6 +1,9 @@
 package internal
 
 import (
+	"bufio"
+	"errors"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -18,21 +21,53 @@ func (j *CopyFileJob) Process() error {
 
 	for _, file := range files {
 		filename := file.Name()
-		fp := filepath.Join(j.srcDir, filename)
 
 		// if item is an image file, we want to process it
 		if !file.IsDir() && rgx.MatchString(filename) {
+			sp := filepath.Join(j.srcDir, filename)
+			dp := filepath.Join(dstDir, filename)
 
-			data, err := os.ReadFile(fp)
-			if err != nil {
+			if err := copyFile(sp, dp); err != nil {
 				return err
 			}
 
-			err = os.WriteFile(filepath.Join(dstDir, filename), data, 0777) //write the content to destination file
-			if err != nil {
-				return err
-			}
+			fileMu.Lock()
+			totalFiles += 1
+			fileMu.Unlock()
 		}
+	}
+
+	return nil
+}
+
+func copyFile(srcPath, outPath string) error {
+	source, err := os.Open(srcPath)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if e := source.Close(); e != nil {
+			err = errors.Join(err, e)
+		}
+	}()
+
+	reader := bufio.NewReader(source)
+
+	out, err := os.Create(outPath)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if e := out.Close(); e != nil {
+			err = errors.Join(err, e)
+		}
+	}()
+
+	_, err = io.Copy(io.MultiWriter(out, bar), reader)
+	if err != nil {
+		return err
 	}
 
 	return nil
