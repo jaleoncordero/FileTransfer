@@ -3,29 +3,24 @@ package internal
 import (
 	"fmt"
 	"os"
-	"regexp"
+
+	"github.com/inhies/go-bytesize"
 )
 
 var (
-	rgx *regexp.Regexp
-
 	srcDir, dstDir string
 )
 
-func Init() {
-	r, err := regexp.Compile(imgRegex)
-
-	if err != nil {
-		panic("failed to compile image regex")
-	}
-	rgx = r
+func Run() {
+	Init()
 }
 
-func Run() {
+func Init() {
+	fmt.Println()
+
 	if err := validateArguments(); err != nil {
 		panic(err.Error())
 	}
-
 }
 
 func validateArguments() error {
@@ -56,6 +51,8 @@ func validateDirectoryExists(dirType, d string) error {
 		return err
 	}
 
-	fmt.Printf("%s directory information\n============================\n%v\n\n", dirType, fileInfo)
+	fmt.Printf("%s directory information\n----------------------------\nPath: %s\nSize: %v\n\n",
+		dirType, d, bytesize.New(float64(fileInfo.Size())))
+
 	return nil
 }
