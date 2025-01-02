@@ -30,7 +30,7 @@ func Run() {
 	wp.Start()
 
 	// progress bar :)
-	bar = progressbar.DefaultBytes(
+	pb = progressbar.DefaultBytes(
 		-1,
 		"copying files",
 	)

@@ -25,7 +25,7 @@ var (
 	srcDir string
 	dstDir string
 
-	bar *progressbar.ProgressBar
+	pb *progressbar.ProgressBar
 )
 
 // job vars
