@@ -3,7 +3,6 @@ module github.com/jaleoncordero/FileTransfer
 go 1.23.2
 
 require (
-	github.com/jaleoncordero/FileTransfer v0.2.0
 	github.com/jaleoncordero/worker v0.0.0-20250101075218-456999880476
 	github.com/schollz/progressbar/v3 v3.17.1
 )

@@ -2,8 +2,6 @@ github.com/chengxilo/virtualterm v1.0.4 h1:Z6IpERbRVlfB8WkOmtbHiDbBANU7cimRIof7m
 github.com/chengxilo/virtualterm v1.0.4/go.mod h1:DyxxBZz/x1iqJjFxTFcr6/x+jSpqN0iwWCOK1q10rlY=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/jaleoncordero/ImageTransfer v0.2.0 h1:8L4N3f2AzV27RifyHPvzbGYS7QlVub9x9lcuSziQ9YU=
-github.com/jaleoncordero/ImageTransfer v0.2.0/go.mod h1:YLEoopqpR7oGQevxhMPBNR7o4219vvzsH0peOEt8igA=
 github.com/jaleoncordero/worker v0.0.0-20250101075218-456999880476 h1:FbAi8BR0Hv8To2hqO2ZWbGUA4U2lvqvdoUei82OX5IY=
 github.com/jaleoncordero/worker v0.0.0-20250101075218-456999880476/go.mod h1:eRKRaq74Tv/sSHMLwqP/UYcHNsydJtnfk8lu6gyvNhw=
 github.com/mattn/go-runewidth v0.0.16 h1:E5ScNMtiwvlvB5paMFdw9p4kSQzbXFikJ5SQO6TULQc=
