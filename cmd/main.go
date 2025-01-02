@@ -1,6 +1,6 @@
 package main
 
-import "github.com/jaleoncordero/ImageTransfer/internal"
+import "github.com/jaleoncordero/FileTransfer/internal"
 
 func main() {
 	internal.Run()
