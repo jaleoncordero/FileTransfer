@@ -11,7 +11,7 @@ SRC := $(shell find ./internal $(FIND_FLAGS))
 bin/%: ./cmd/main.go | bin
 	$(GO) build -o $@ ./$(<D)
 
-bin/ImageTransfer: $(SRC) go.mod
+bin/FileTransfer: $(SRC) go.mod
 
 bin:
 	mkdir -p bin
@@ -21,4 +21,4 @@ clean:
 	$(RM) -r bin
 
 .PHONY: build
-build: clean bin/ImageTransfer
+build: clean bin/FileTransfer

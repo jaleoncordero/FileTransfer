@@ -19,7 +19,7 @@ func (j *CopyFileJob) Process() error {
 	for _, file := range files {
 		filename := file.Name()
 
-		// if item is an image file, we want to process it
+		// if item is an matching file type, we want to process it
 		if !file.IsDir() && rgx.MatchString(filename) {
 			sp := filepath.Join(j.srcDir, filename)
 
