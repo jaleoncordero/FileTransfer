@@ -3,10 +3,15 @@ package internal
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 type CopyFileJob struct {
-	srcDir string
+	dstDir   string
+	srcDir   string
+	useRegex bool
+
+	rgx *regexp.Regexp
 }
 
 // implement
@@ -20,12 +25,12 @@ func (j *CopyFileJob) Process() error {
 		filename := file.Name()
 
 		// if item is an matching file type, we want to process it
-		if !file.IsDir() && rgx.MatchString(filename) {
+		if !file.IsDir() && (!j.useRegex || j.rgx.MatchString(filename)) {
 			sp := filepath.Join(j.srcDir, filename)
 
 			// handle duplicate destination filenames. No duplicate file
 			// check is made
-			dp, err := getUniqueFilename(dstDir, filename, 1)
+			dp, err := getUniqueFilename(j.dstDir, filename, 1)
 			if err != nil {
 				return err
 			}

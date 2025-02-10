@@ -14,15 +14,23 @@ func Run() {
 	fmt.Println()
 
 	// validate command input
-	err := validateArguments()
+	srcDir, dstDir, err := validateArguments()
 	if err != nil {
 		panic(err.Error())
 	}
 
-	// compile regex that determines what media files to copy
-	rgx, err = regexp.Compile(getRegex())
-	if err != nil {
-		panic("failed to compile media regex")
+	if execMode != "all" {
+
+		// build & compile regex that determines what media files to copy
+		rS, err := buildExtensionRegex()
+		if err != nil {
+			panic(err.Error())
+		}
+
+		rgx, err = regexp.Compile(rS)
+		if err != nil {
+			panic(err.Error())
+		}
 	}
 
 	// start worker pool
@@ -36,7 +44,7 @@ func Run() {
 	)
 
 	// begin work
-	err = iterateDirectories(srcDir, &wp)
+	err = iterateDirectories(srcDir, dstDir, &wp)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -50,16 +58,19 @@ func Run() {
 	fmt.Printf("\n\nSuccessfully copied %d file(s) to %s\n", totalFiles, dstDir)
 }
 
-func iterateDirectories(currentDir string, wp *worker.Pool) error {
+func iterateDirectories(currentDir, dstDir string, wp *worker.Pool) error {
 	files, err := os.ReadDir(currentDir)
 	if err != nil {
 		return err
 	}
 
-	// add file copy job to worker pool
+	// add file copy job to worker pool - each worker copies files from current dir
 	wp.AddJob(
 		&CopyFileJob{
-			srcDir: currentDir,
+			dstDir:   dstDir,
+			srcDir:   currentDir,
+			useRegex: rgx != nil,
+			rgx:      rgx,
 		},
 	)
 
@@ -68,7 +79,7 @@ func iterateDirectories(currentDir string, wp *worker.Pool) error {
 
 		// if item is a directory, we want to iterate into it
 		if file.IsDir() {
-			err := iterateDirectories(filepath.Join(currentDir, file.Name()), wp)
+			err := iterateDirectories(filepath.Join(currentDir, file.Name()), dstDir, wp)
 			if err != nil {
 				return err
 			}
