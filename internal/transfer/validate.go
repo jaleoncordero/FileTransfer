@@ -1,4 +1,4 @@
-package internal
+package transfer
 
 import (
 	"errors"
@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/jaleoncordero/FileTransfer/internal/utils"
 )
 
 func validateArguments() (string, string, error) {
@@ -21,7 +23,7 @@ func validateArguments() (string, string, error) {
 	}
 
 	// validate source dir
-	if err = validateDirectoryExists(srcDir); err != nil {
+	if err = utils.ValidateDirectoryExists(srcDir); err != nil {
 		return "", "", err
 	}
 
@@ -32,7 +34,7 @@ func validateArguments() (string, string, error) {
 	}
 
 	// attempt to create destination directory if it doesn't exist
-	err = validateDirectoryExists(dstDir)
+	err = utils.ValidateDirectoryExists(dstDir)
 	if errors.Is(err, fs.ErrNotExist) {
 		if err = os.MkdirAll(dstDir, 0777); err != nil {
 			return "", "", err
@@ -49,15 +51,6 @@ func validateArguments() (string, string, error) {
 	}
 
 	return srcDir, dstDir, nil
-}
-
-func validateDirectoryExists(d string) error {
-	_, err := os.Stat(d)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func validateMode() error {

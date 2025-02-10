@@ -1,8 +1,10 @@
 package main
 
-import "github.com/jaleoncordero/FileTransfer/internal"
+import "github.com/jaleoncordero/FileTransfer/internal/transfer"
 
 // TODO: create settings struct & use that instead of env vars
 func main() {
-	internal.Run()
+
+	// TODO: implement cmd type handling to work with multiple plugins
+	transfer.Run()
 }

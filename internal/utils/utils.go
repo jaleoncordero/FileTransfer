@@ -1,52 +1,18 @@
-package internal
+package utils
 
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/schollz/progressbar/v3"
 )
 
-func buildExtensionRegex() (string, error) {
-	r := matchRegex
-	first := true
-
-	l, err := buildExtensionList()
-	if err != nil {
-		return "", err
-	}
-
-	for _, ext := range l {
-		if first {
-			first = false
-		} else {
-			r += "|"
-		}
-
-		r += fmt.Sprintf("(.*%s$)", ext)
-	}
-
-	return r, nil
-}
-
-func buildExtensionList() ([]string, error) {
-	fmt.Printf("MODE: %s", execMode)
-	if v, ok := supportedExtensions[execMode]; ok {
-		return v, nil
-	}
-
-	// TODO: support custom mode
-	switch execMode {
-	default:
-		return nil, fmt.Errorf("mode %s not supported", execMode)
-	}
-}
-
-func getUniqueFilename(path, filename string, copy int) (string, error) {
+func GetUniqueFilename(path, filename string, copy int) (string, error) {
 	for {
 		dp := filepath.Join(path, filename)
 
@@ -67,7 +33,7 @@ func getUniqueFilename(path, filename string, copy int) (string, error) {
 	}
 }
 
-func copyFile(srcPath, outPath string) error {
+func CopyFile(srcPath, outPath string, pb *progressbar.ProgressBar) error {
 	// open source file
 	source, err := os.Open(srcPath)
 	if err != nil {
@@ -94,8 +60,24 @@ func copyFile(srcPath, outPath string) error {
 		}
 	}()
 
-	// write source file to destination file, & to progress bar
-	_, err = io.Copy(io.MultiWriter(out, pb), reader)
+	// write source file to destination file, & to progress bar if any
+	if pb != nil {
+		_, err = io.Copy(io.MultiWriter(out, pb), reader)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = io.Copy(out, reader)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func ValidateDirectoryExists(d string) error {
+	_, err := os.Stat(d)
 	if err != nil {
 		return err
 	}

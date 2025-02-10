@@ -1,9 +1,11 @@
-package internal
+package transfer
 
 import (
 	"os"
 	"path/filepath"
 	"regexp"
+
+	"github.com/jaleoncordero/FileTransfer/internal/utils"
 )
 
 type CopyFileJob struct {
@@ -30,12 +32,12 @@ func (j *CopyFileJob) Process() error {
 
 			// handle duplicate destination filenames. No duplicate file
 			// check is made
-			dp, err := getUniqueFilename(j.dstDir, filename, 1)
+			dp, err := utils.GetUniqueFilename(j.dstDir, filename, 1)
 			if err != nil {
 				return err
 			}
 
-			if err := copyFile(sp, dp); err != nil {
+			if err := utils.CopyFile(sp, dp, pb); err != nil {
 				return err
 			}
 

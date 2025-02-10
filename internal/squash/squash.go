@@ -1,0 +1,5 @@
+package squash
+
+// func Run() {
+
+// }
